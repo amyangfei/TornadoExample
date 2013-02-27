@@ -1,10 +1,14 @@
 from model.models import User
 from base import BaseHandler
 
+class TestHandler(BaseHandler):
+    def get(self):
+        user = self.get_current_user()
+        self.render('base.html', username = user, test='xiu')
+
 class IndexHandler(BaseHandler):
     def get(self):
         user = self.get_current_user()
-        #entityGet = Entity.get('test tornado web project')
         self.render('index.html', username = user, test='xiu')
 
 class LoginHandler(BaseHandler):
@@ -22,6 +26,11 @@ class LoginHandler(BaseHandler):
         else:
             self.redirect("/login")
             
+class LogoutHandler(BaseHandler):
+    def get(self):
+        self.clear_cookie("user")
+        self.redirect("/")
+        
 class RegisterHandler(BaseHandler):
     def get(self):
         self.render("register.html", next=self.get_argument("next", "/"))

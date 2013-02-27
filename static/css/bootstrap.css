@@ -3939,6 +3939,7 @@ input[type="submit"].btn.btn-mini {
 
 .nav {
   margin-bottom: 20px;
+  padding: 10px 20px 10px;
   margin-left: 0;
   list-style: none;
 }
