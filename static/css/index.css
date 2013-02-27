@@ -1,0 +1,34 @@
+body {
+    background-color:#ccc;
+}
+
+body {font-size:16px;line-height:38px;color:#323c46;background:#dde2e5 url("/static/images/bg.png") repeat fixed}
+a{color:#323c46;text-decoration:none}
+
+.div-logo {
+text-align: center;
+
+}
+.logo {
+	position: absolute;
+	top: 30%;
+	left: 50%;
+	margin-left: -126px;
+	<!--
+	width: 252px;
+	height: 139px;
+	background: url("/static/images/logo.png") center no-repeat;
+	-->
+	text-indent: -9999px;
+}
+
+.nav{position:fixed;top:19px;left:-5px;height:38px;-webkit-transition:left .1s ease 0;-moz-transition:left .1s ease 0;transition:left .1s ease 0;}
+.nav:hover{left:0;-webkit-transition:left .2s ease .1s;-moz-transition:left .2s ease .1s;transition:left .2s ease .1s}
+.login{background:#96a0aa;}
+.login a{display:block;line-height:38px;padding:0 10px 0 15px;color:#dde2e5;color: #323C46;
+    font-family: 'Helvetica Neue',Helvetica,Arial,'Hiragino Sans GB','WenQuanYi Micro Hei','Microsoft YaHei',sans-serif;
+    font-size: 16px;
+    line-height: 38px;
+}
+.like{width:43px;background:#c66 url("/static/images/heart.png") 16px center no-repeat;text-indent:-9999px;}
+.like .arrow{float:right;width:0;height:0;margin-right:-10px;border-top:19px solid #c66;border-bottom:19px solid #c66;border-right:10px solid transparent}
