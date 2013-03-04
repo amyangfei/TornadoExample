@@ -1,4 +1,4 @@
-from model.models import User
+from model.models import *
 from base import BaseHandler
 
 class TestHandler(BaseHandler):

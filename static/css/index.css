@@ -2,7 +2,14 @@ body {
     background-color:#ccc;
 }
 
-body {font-size:16px;line-height:38px;color:#323c46;background:#dde2e5 url("/static/images/bg.png") repeat fixed}
+body {
+	font-family: 'Helvetica Neue',Helvetica,Arial,'Hiragino Sans GB','WenQuanYi Micro Hei','Microsoft YaHei',sans-serif;
+    font-size: 16px;
+    line-height: 38px;
+    color: #323c46;
+    background:#dde2e5 url("/static/images/bg.png") repeat fixed
+}
+
 a{color:#323c46;text-decoration:none}
 
 .f-div-logo {
@@ -13,9 +20,16 @@ text-align: center;
 	top: 30%;
 	margin-top: 150px;
 	margin-left: -126px;
+<<<<<<< HEAD
 	height: 139px;
 	/**background: url("/static/images/logo.png") center no-repeat;*/
 
+=======
+	width: 252px;
+	height: 139px;
+	background: url("/static/images/logo.png") center no-repeat;
+	text-indent: -9999px;
+>>>>>>> page
 }
 
 .f-nav{position:fixed;top:70px;left:-5px;height:38px;-webkit-transition:left .1s ease 0;-moz-transition:left .1s ease 0;transition:left .1s ease 0;}
@@ -26,6 +40,7 @@ text-align: center;
     font-size: 16px;
     line-height: 38px;
 }
+<<<<<<< HEAD
 .f-like{width:43px;background:#c66 url("/static/images/heart.png") 16px center no-repeat;text-indent:-9999px;}
 .f-like .f-arrow{float:right;width:0;height:0;margin-right:-10px;border-top:19px solid #c66;border-bottom:19px solid #c66;border-right:10px solid transparent}
 
@@ -40,3 +55,49 @@ text-align: center;
 	position: absolute;
 	bottom: 23px;
 }
+=======
+.like{width:43px;background:#c66 url("/static/images/heart.png") 16px center no-repeat;text-indent:-9999px;}
+.like .arrow{float:right;width:0;height:0;margin-right:-10px;border-top:19px solid #c66;border-bottom:19px solid #c66;border-right:10px solid transparent}
+
+.next{line-height: 38px;position:fixed;top:38%;right:0;height:38px;width:19px;padding:5px 0 5px 19px;overflow:hidden;-webkit-transition:width .1s ease 0;-moz-transition:width .1s ease 0;transition:width .1s ease 0;}
+.next:hover{line-height: 38px;width:107px;-webkit-transition:width .3s ease .1s;-moz-transition:width .3s ease .1s;transition:width .3s ease .1s}
+.next a{display:block;width:107px;color:#dde2e5}
+.next .arrow{float:left;width:0;height:0;border-top:19px solid transparent;border-bottom:19px solid transparent;border-right:19px solid #96a0aa}
+.next .text{float:left;width:64px;padding:0 14px 0 10px;background:#96a0aa}
+
+.page{width:800px;margin:19px auto;background:#f6f7f8;-webkit-box-shadow:0 0 3px 1px #c8cdd0;-moz-box-shadow:0 0 3px 1px #c8cdd0;box-shadow:0 0 3px 1px #c8cdd0}
+.article{font-size:18px;margin-top:19px;padding:114px 85px 76px;border-bottom:#dde2e5 1px solid;-webkit-box-shadow:0 6px 5px -5px #ebedef;-moz-box-shadow:0 6px 5px -5px #ebedef;box-shadow:0 6px 5px -5px #ebedef;overflow:hidden}
+
+.title{font-size:36px;font-weight:normal;margin:0}
+.artibody{margin-top:76px;padding-bottom:76px;background:url("/images/icon-end.gif") bottom no-repeat;}
+.artibody strong{font-weight:bold}
+.artibody h2,.artibody h3{font-weight:normal}
+.artibody h2{font-size:30px;margin:76px 0 38px}
+.artibody h3{font-size:24px;margin:38px 0}
+.artibody em{font-style:italic}
+.artibody p{margin:38px 0}
+.artibody a{color:#323c46;text-decoration:underline}
+.artibody ol,.artibody ul{margin:38px 0 38px 38px}
+.artibody ol{list-style-type:decimal}
+.artibody ul{list-style-type:square}
+.artibody img{display:block;margin:0 auto;background:#fff;max-width:100%}
+.artibody span{display:block;text-align:center}
+.artibody blockquote{margin:38px -85px;padding:1px 85px;background:#f1f3f5;}
+.artibody blockquote a{color:#646e78}
+.artibody code{font-size:16px;background:#eee;padding:0 5px;border:1px solid #ddd;font-family:Monaco,Courier,monospace}
+.artibody b,.artibody i,.artibody u{color:#969ba0}
+.artibody b{font-weight:normal}
+.artibody i{font-style:normal}
+.artibody u{text-decoration:none;}
+.artibody u a{color:#969ba0}
+.artibody q:before{content:'「'}
+.artibody q:after{content:'」'}
+.artibody cite{font-style:italic}
+.artibody hr{color:#969ba0;font-size:38px;text-align:center;margin:38px 0;border:none;}
+.artibody hr:before{content:'* * *'}
+.source{float:right;width:2em;font-size:18px;line-height:1em;color:#c8cdd2;background:url("/static/images/external.png") 100% no-repeat;margin:-90px -60px 0 0;padding-right:1.5em}
+
+
+
+.tools{line-height:38px;padding:19px 80px;overflow:hidden}
+>>>>>>> page

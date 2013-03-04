@@ -16,6 +16,7 @@ class Application(tornado.web.Application):
             "template_path" : os.path.join(os.path.dirname(__file__), "templates"),
             "static_path" : os.path.join(os.path.dirname(__file__), "static"),
             "cookie_secret" : base64.b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes),
+            "debug" : True,
         }
         
         tornado.web.Application.__init__(self, handlers=urls, **settings)
