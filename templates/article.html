@@ -5,8 +5,6 @@
     <title>Home Page</title>
     <link href="/static/css/index.css" media="screen" rel="stylesheet"
     type="text/css" />
-    <link href="/static/css/bootstrap.min.css" media="screen" rel="stylesheet"
-    type="text/css" />
 </head>
 <body>
     
@@ -27,6 +25,7 @@
     
     <div class="page">
         <div class="article">
+        	<a target="_blank" href={{ article.asource }} class="source">来源</a>
             <h1 class="title">{{ article.atitle }}</h1>
             <div class="artibody">
                 <b>{{ article.aauthor }}</b>
@@ -34,10 +33,22 @@
             </div>
         </div>
     
-        <div class="tools">
-        </div>
+         <div class="tools">
+	    	<div id="likes" class="likes">like</div>
+	    	<span class="number" style="display: none;"><span id="number">1749</span>people like this</span>
+	    	
+	    	<div class="share">
+	    		<span>share</span>
+	    		<ul class="sns">
+		    		<li><a id="share-sina" href="#" title="share to sina weibo"><img src="/static/images/icon-sns-sina.gif" alt="share to sina weibo"></a></li>
+		    		<li><a id="share-tencent" href="#" title="share to tencent weibo"><img src="/static/images/icon-sns-qq.gif" alt="share to tencent weibo"></a></li>
+		    		<li><a id="share-douban" href="#" title="shrae to douban"><img src="/static/images/icon-sns-douban.gif" alt="shrae to douban"></a></li>
+		    		<li><a id="share-twitter" href="#" title="share to twitter"><img src="/static/images/icon-sns-twitter.gif" alt="share to twitter"></a></li>
+	    		</ul>
+    		</div>
+    	</div>
     </div>
-    
+ 
     <script src="/static/js/jquery-1.8.2.min.js"></script>
     <script src="/static/js/index.js"></script>
 </body>

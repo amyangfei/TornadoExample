@@ -30,4 +30,5 @@ class Article(Base):
     atitle = Column('a_title', String(45))
     aauthor = Column('a_author', String(45))
     acontent = Column('a_content', TEXT(4294967295))
+    asource = Column('a_source', TEXT(4294967295))
     
