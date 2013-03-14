@@ -8,8 +8,10 @@ class BookSpider(BaseSpider):
     name = "bookspider"
     allowed_domains = ["book.douban.com"]
     
+    #start_urls = ["http://book.douban.com/subject/1770782/reviews?score=&start=25", ]
+    #start_urls = ['http://book.douban.com/subject/1770782/', ]
     #start_urls = ['http://book.douban.com/tag/']
-    start_urls = ["http://book.douban.com/subject/1770782/reviews?score=&start=25", ]
+    start_urls = ['http://book.douban.com/tag/%E5%B0%8F%E8%AF%B4']
     
     tags_pattern = re.compile('http://book.douban.com/tag/$')
     tag_list_pattern = re.compile('http://book.douban.com/tag/[\s\S]+')
@@ -18,10 +20,15 @@ class BookSpider(BaseSpider):
     review_pattern = re.compile('http://book.douban.com/review/[0-9]+/$')
     
     patterns = [tags_pattern, tag_list_pattern, subject_pattern, review_list_pattern, review_pattern]
-    types = ['tags_pattern', 'tag_list', 'subject_pattern', 'review_list', 'review']
+    types = ['tags', 'tag_list', 'subject', 'review_list', 'review']
     
     review_list_index_pattern = re.compile('http://book.douban.com/subject/[0-9]+/reviews$')
     review_list_add_pattern = re.compile('(http://book.douban.com/subject/[0-9]+/reviews\?[a-zA-Z&=]*?start=)([0-9]+)$')
+    
+    tag_list_index_pattern = re.compile('http://book.douban.com/tag/[\s\S]+$')
+    tag_list_add_pattern = re.compile('(http://book.douban.com/tag/[\s\S]+\?start=)([0-9]+?)[a-zA-Z&=]*$')
+    
+    tags_url_base = 'http://book.douban.com/tag/'
     
     extend_new_urls = []
     
@@ -31,27 +38,47 @@ class BookSpider(BaseSpider):
             if self.patterns[i].match(response.url) != None:
                 page_type = self.types[i]
                 break
-                  
-#        page_type = response.url.split("/")[3]
-#        page_sub_type = response.url.split("/")[4]
-#        if page_type == 'tag' and page_sub_type == '':
-#            page_type = 'tags'
+                        
         self._handle_page(response, page_type)
         
-        #yield self.make_requests_from_url('http://book.douban.com/review/2923366/')
         for url in self.extend_new_urls:
-            yield self.make_requests_from_url(url)
             self.extend_new_urls.remove(url)
+            yield self.make_requests_from_url(url)
     
     def _parse_tags_page(self, response):
-        pass
-    
+        hxs = HtmlXPathSelector(response)
+        hrefs = hxs.select('//table[@class="tagCol"]/tbody/tr/td/a/@href').extract()
+        hreflist = []
+        for tag_href in hrefs:
+            tag = re.match('\./([\s\S]+)$', tag_href).group(1)
+            hreflist.append(self.tags_url_base + tag)
+        self._extend_urls(hreflist)
+        
     def _parse_tag_list_page(self, response):
-        print ''
-        pass
+        page_step = 20
+        extendurls = []
+        
+        ret = self.tag_list_index_pattern.match(response.url)
+        if ret != None:
+            extendurls.append(ret.group(0) + '?start=' + str(page_step))
+        else:
+            ret = self.tag_list_add_pattern.match(response.url)
+            if ret != None:
+                page_index = int(ret.group(2)) + page_step
+                extendurls.append(ret.group(1) + str(page_index))
+        
+        hxs = HtmlXPathSelector(response)
+        info_div = hxs.select('//div[@class="info"]')
+        for info in info_div:
+            new_url = info.select('h2/a/@href')[0].extract()
+            extendurls.append(new_url)
+            
+        self._extend_urls(extendurls)
     
     def _parse_subject_page(self, response):
-        pass
+        hxs = HtmlXPathSelector(response)
+        reviews_href = hxs.select('//div[@id="reviews"]/h2/span/a/@href').extract()
+        self._extend_urls(reviews_href)
     
     def _parse_review_list_page(self, response):
         page_step = 25
@@ -67,7 +94,7 @@ class BookSpider(BaseSpider):
                 extendurls.append(ret.group(1) + str(page_index))
         
         hxs = HtmlXPathSelector(response)
-        link_divs =hxs.select('//div[@class="nlst"]')
+        link_divs = hxs.select('//div[@class="nlst"]')
         for link_div in link_divs:
             new_url = link_div.select('h3/a/@href')[0].extract()
             extendurls.append(new_url)
@@ -99,8 +126,6 @@ class BookSpider(BaseSpider):
         item['content'] = review_article
         item['source'] = response.url
         
-        #print str(item)
-        
     def _handle_page(self, response, page_type):
 #        parse_page = {'tags' : self._parse_tags_page(response),
 #                      'tag_list' : self._parse_tag_list_page(response),
@@ -123,12 +148,9 @@ class BookSpider(BaseSpider):
 
     def _extend_urls(self, urls):
         print 'extends...'
-        self.extend_new_urls[:] = []
         self.extend_new_urls.extend(urls)
 #        for url in urls:
-#            #self.start_urls.append(url)
 #            yield self.make_requests_from_url(url)#.replace(callback=self.parse)
 #            #request = Request(url, callback=self.parse, meta={'depth', 3})
-#            #yield request
             
             
