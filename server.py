@@ -2,7 +2,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.httpserver
 from urls import urls
-from db import ConnectDB
+from utils.db import ConnectDB
 
 import os
 import sys

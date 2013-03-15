@@ -4,4 +4,3 @@ mysql_config = {
     'mysql_user' : 'root', 
     'mysql_password' : '891222', 
 }
-

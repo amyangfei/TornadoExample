@@ -1,5 +1,5 @@
 from model.models import *
-from base import BaseHandler
+from handlers.base import BaseHandler
 
 class TestHandler(BaseHandler):
     def get(self):
