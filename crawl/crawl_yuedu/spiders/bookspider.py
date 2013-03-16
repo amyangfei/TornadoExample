@@ -10,10 +10,10 @@ class BookSpider(BaseSpider):
     name = 'bookspider'
     allowed_domains = ["book.douban.com"]
     
-    #start_urls = ["http://book.douban.com/subject/1770782/reviews?score=&start=25", ]
     #start_urls = ['http://book.douban.com/subject/1770782/', ]
     #start_urls = ['http://book.douban.com/tag/']
     start_urls = ['http://book.douban.com/tag/%E6%96%87%E5%AD%A6']
+    #start_urls = ['http://book.douban.com/tag/%E6%95%B0%E5%AD%A6']
     
     tags_pattern = re.compile('http://book.douban.com/tag/$')
     tag_list_pattern = re.compile('http://book.douban.com/tag/[\s\S]+')
@@ -39,7 +39,7 @@ class BookSpider(BaseSpider):
                      'review' : 8
                      }
     
-    crawl_url_type = {'book' : 1,
+    crawl_url_type = {'subject' : 1,
                       'review' : 2,
                       }
     
@@ -48,6 +48,9 @@ class BookSpider(BaseSpider):
         self.extend_url_queue = PriorityQueue()
         self.crawled_url_set = set()
         self._get_crawled_urls()
+        self.subject_crawl_dict = {}
+        self.subject_crawled_dict = {}
+        self.review_subject_dict = {}
         BaseSpider.__init__(self, name=None, **kwargs)
     
     def parse(self, response):
@@ -75,7 +78,17 @@ class BookSpider(BaseSpider):
         
     def _parse_tag_list_page(self, response):
         page_step = 20
+        page_max = page_step * 5
         extendurls = []
+
+        hxs = HtmlXPathSelector(response)
+        info_div = hxs.select('//div[@class="info"]')
+        if len(info_div) == 0:
+            return
+        for info in info_div:
+            new_url = info.select('h2/a/@href')[0].extract()
+            p_url = PriorityUrl(new_url, self.priority_dict['subject'])
+            extendurls.append(p_url)
 
         ret = self.tag_list_index_pattern.match(response.url)
         if ret != None:
@@ -85,31 +98,46 @@ class BookSpider(BaseSpider):
             ret = self.tag_list_add_pattern.match(response.url)
             if ret != None:
                 page_index = int(ret.group(2)) + page_step
-                if page_index < 2 * page_step:
+                if page_index < page_max:
                     p_url = PriorityUrl(ret.group(1) + str(page_index), self.priority_dict['tag_list'])
                     extendurls.append(p_url)
-        
-        hxs = HtmlXPathSelector(response)
-        info_div = hxs.select('//div[@class="info"]')
-        for info in info_div:
-            new_url = info.select('h2/a/@href')[0].extract()
-            p_url = PriorityUrl(new_url, self.priority_dict['subject'])
-            extendurls.append(p_url)
             
         self._extend_urls(extendurls)
     
     def _parse_subject_page(self, response):
         hxs = HtmlXPathSelector(response)
         reviews_href = hxs.select('//div[@id="reviews"]/h2/span/a/@href').extract()
-        if len(reviews_href) <= 0:
+        if len(reviews_href) == 0:
             return
         p_url = PriorityUrl(reviews_href[0], self.priority_dict['review_list'])
         self._extend_urls([p_url])
+        subject_id = re.search('/subject/([0-9]+)', response.url).group(1)
+        self.subject_crawl_dict[subject_id] = 1
     
+    #review-list of a certain subject, extend '/review/review_id' url to crawl
     def _parse_review_list_page(self, response):
         page_step = 25
+        page_max = page_step * 2
         extendurls = []
         
+        hxs = HtmlXPathSelector(response)
+        link_divs = hxs.select('//div[@class="nlst"]')
+        subject_id = re.search('/subject/([0-9]+)/reviews', response.url).group(1)
+        if len(link_divs) <= 0:
+            self.subject_crawl_dict[subject_id] -= 1
+            if self.subject_crawl_dict[subject_id] <= 0:
+                self._set_url_as_crawled('http://book.douban.com/subject/'+subject_id, self.crawl_url_type['subject'])
+                del self.subject_crawl_dict[subject_id]
+            return
+        for link_div in link_divs:
+            new_url = link_div.select('h3/a/@href')[0].extract()
+            review_id = re.search('/review/([0-9]+)', new_url).group(1)
+            if self._validate_url(new_url):
+                p_url = PriorityUrl(new_url, self.priority_dict['review'])
+                extendurls.append(p_url)
+                self.review_subject_dict[review_id] = subject_id
+                self.subject_crawl_dict[subject_id] += 1
+           
         ret = self.review_list_index_pattern.match(response.url)
         if ret != None:
             p_url = PriorityUrl(ret.group(0)+'?score=&start='+str(page_step), self.priority_dict['review_list'])
@@ -118,17 +146,12 @@ class BookSpider(BaseSpider):
             ret = self.review_list_add_pattern.match(response.url)
             if ret != None:
                 page_index = int(ret.group(2)) + page_step
-                if page_index < 2 * page_step:
+                if page_index < page_max:
                     p_url = PriorityUrl(ret.group(1) + str(page_index), self.priority_dict['review_list'])
                     extendurls.append(p_url)
-        
-        hxs = HtmlXPathSelector(response)
-        link_divs = hxs.select('//div[@class="nlst"]')
-        for link_div in link_divs:
-            new_url = link_div.select('h3/a/@href')[0].extract()
-            p_url = PriorityUrl(new_url, self.priority_dict['review'])
-            extendurls.append(p_url)
-        
+                else:
+                    self.subject_crawl_dict[subject_id] -= 1
+
         self._extend_urls(extendurls)
     
     def _parse_review_page(self, response):
@@ -150,6 +173,9 @@ class BookSpider(BaseSpider):
                 review_article += cont.replace('\r', '</p><p>')
         review_article += '</p>'
         
+        review_id = re.search('/review/([0-9]+)', response.url).group(1)
+        subject_id = self.review_subject_dict[review_id]
+        
         item = BookReview()
         item['title'] = review_title
         item['author'] = review_author
@@ -163,6 +189,11 @@ class BookSpider(BaseSpider):
                         }
         
         self._save_douban_review(article_dict)
+        self.subject_crawl_dict[subject_id] -= 1
+        del self.review_subject_dict[review_id]
+        if self.subject_crawl_dict[subject_id] <= 0:
+            self._set_url_as_crawled('http://book.douban.com/subject/'+subject_id, self.crawl_url_type['subject'])
+            del self.subject_crawl_dict[subject_id]
         
     def _handle_page(self, response, page_type):
 #        parse_page = {'tags' : self._parse_tags_page(response),
@@ -172,17 +203,19 @@ class BookSpider(BaseSpider):
 #                      'review' : self._parse_review_page(response),
 #                      }
 #        return parse_page[page_type](response)
-
-        if page_type == 'tags':
-            self._parse_tags_page(response)
-        elif page_type == 'tag_list':
-            self._parse_tag_list_page(response)
-        elif page_type == 'subject':
-            self._parse_subject_page(response)
-        elif page_type == 'review_list':
-            self._parse_review_list_page(response)
-        elif page_type == 'review':
-            self._parse_review_page(response)
+        try:
+            if page_type == 'tags':
+                self._parse_tags_page(response)
+            elif page_type == 'tag_list':
+                self._parse_tag_list_page(response)
+            elif page_type == 'subject':
+                self._parse_subject_page(response)
+            elif page_type == 'review_list':
+                self._parse_review_list_page(response)
+            elif page_type == 'review':
+                self._parse_review_page(response)
+        except Exception, e:
+            print e
 
     def _extend_urls(self, p_urls):
         #print 'extends...'
@@ -202,8 +235,8 @@ class BookSpider(BaseSpider):
         craw_article.bisproduct = False
         
         self.session.add(craw_article)  
-        self._set_url_as_crawled(article_dic['source'], self.crawl_url_type['review'])
         self.session.commit()
+        self._set_url_as_crawled(article_dic['source'], self.crawl_url_type['review'])
         
     def _get_crawled_urls(self):
         crawled_urls = self.session.query(CrawlUrlRecord.uurl).filter(CrawlUrlRecord.ucrawled==True).all()
@@ -217,6 +250,10 @@ class BookSpider(BaseSpider):
         cur.utype = url_type
         self.session.add(cur)
         self.crawled_url_set.add(url)
+        self.session.commit()
+        
+    def _validate_url(self, url):
+        return (url not in self.crawled_url_set)
 
 class PriorityUrl:
     def __init__(self, url, priority=sys.maxint):
